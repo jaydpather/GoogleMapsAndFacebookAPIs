@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+@section FaceBookMarkup
+{
+    <div id="fb-root"></div>
+    <script>
+        var _isFacebookApiLoaded = false;
+
+        window.fbAsyncInit = function () {
+            // init the FB JS SDK
+            FB.init({
+                appId: '1432334940329873',                        // App ID from the app dashboard
+                status: true,                                 // Check Facebook Login status
+                xfbml: true                                  // Look for social plugins on the page
+            });
+
+            _isFacebookApiLoaded = true;
+            FB.Event.subscribe('auth.authResponseChange', onFbLogin);
+            
+        };
+
+        function onFbLogin(response) {
+            if (response.status === "connected") {
+                if (Modernizr.localstorage) {
+                    sessionStorage["fbAccessToken"] = response.authResponse.accessToken;
+                    window.location.href = window.location.href.replace("Index", "Map");
+                }
+                else {
+                    alert('unsupported browser: you must use a browser that supports HTML5 storage (e.g., Internet Explorer 8.0+, FireFox 3.5+, Chrome 4.0+');
+                }
+            }
+        }
+
+        function onFaceBookLogout_Clicked() {
+            FB.logout(function (response) {
+                alert("logout: " + response.status);
+            });
+        }
+
+        function onFaceBookLogin_Clicked()
+        {
+            if (_isFacebookApiLoaded) {
+                FB.login(onFbLogin, { scope: 'publish_actions' });
+            }
+            else {
+                alert("The app cannot log in to Facebook until page is completely loaded.  Please try again in a few seconds.");
+            }
+        }
+
+        // Load the SDK asynchronously
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) { return; }
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/all.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+}
+
+<h2>Google Maps API / Facebook API Demo App</h2>
+
+<p>
+    This application demonstrates use of the Google Maps API and Facebook API.  To get started, click the button below.  You will be prompted for Facebook authorization, and for giving this app permission to update your Facebook status.  (You can always delete any status messages created by this app.)  You may need to disable pop-up blockers in order to see the Facebook login prompt.
+</p>
+
+<p>
+    Note that in order for the Facebook login to work, your address bar must read "http://localhost:51308/Home/Index".  If Visual Studio has assigned a different port number, you must edit your project settings to use port 51308.
+</p>
+
+<input type="button" value="log in with Facebook" onclick="onFaceBookLogin_Clicked();" />
+
+<br/>
+<br/>
+<input style="display: none;" type="button" value="logout of Facebook" onclick="onFaceBookLogout_Clicked();"
